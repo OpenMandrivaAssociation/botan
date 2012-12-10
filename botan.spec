@@ -152,3 +152,10 @@ awk '/\[.*\]/{f=0} /\[(RC5.*|RC6|IDEA)\]/{f=1} (f && !/^#/){sub(/^/,"#")} {print
 LD_LIBRARY_PATH=%{buildroot}%{_libdir} ./check --validate
 
 
+
+
+%changelog
+* Fri Aug 12 2011 Shlomi Fish <shlomif@mandriva.org> 1.8.13-2mdv2012.0
++ Revision: 694224
+- import botan
+
