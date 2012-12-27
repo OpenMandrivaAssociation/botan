@@ -1,6 +1,6 @@
 %define libname %mklibname %{name}1.10_ 0
-%define develname %mklibname %{name}1.10_ -d
-%define staticname %mklibname %{name}1.10_ -s -d
+%define develname %mklibname %{name}1.10 -d
+%define staticname %mklibname %{name}1.10 -s -d
 
 Name:           botan
 Version:        1.10.3
