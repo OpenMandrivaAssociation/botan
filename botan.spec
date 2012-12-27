@@ -1,24 +1,18 @@
-%define myname botan
-%define api 1.8.2
-%define libname %mklibname %{myname} %{api}
-%define develname %mklibname %{myname} -d
-%define staticname %mklibname %{myname} -s -d
+%define libname %mklibname %{name}1.10_ 0
+%define develname %mklibname %{name}1.10_ -d
+%define staticname %mklibname %{name}1.10_ -s -d
 
-Name:           %{myname}
-Version:        1.8.13
-Release:        %mkrel 2
+Name:           botan
+Version:        1.10.3
+Release:        1
 Summary:        Crypto library written in C++
 
 Group:          System/Libraries
 License:        BSD
 URL:            http://botan.randombit.net/
-# tarfile is stripped using repack.sh. original tarfile to be found
-# here: http://files.randombit.net/botan/Botan-%%{version}.tbz
-Source0:        Botan-%{version}.stripped.tbz
-Source1:        README.fedora
-# soname was changed unintentionally upstream, revert it.
-Patch0:         botan-1.8.13-soname.patch
-BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root
+Source0:        http://files.randombit.net/botan/v%(echo %version |cut -d. -f1-2)/Botan-%version.tbz
+# Much better suited for crosscompiles
+Source1:	Botan-1.8.8-cmake-buildfiles.tar.xz
 
 BuildRequires:  gcc-c++
 BuildRequires:  python
@@ -40,7 +34,7 @@ flavor of the library.
 %package -n     %{libname}
 
 #(!) summary for main lib RPM only
-Summary:        Main library for %{myname}
+Summary:        Main library for %{name}
 Group:          System/Libraries
 Provides:       %{name} = %{version}-%{release}
 
@@ -78,8 +72,9 @@ of %{name}.
 
 %prep
 %setup -q -n Botan-%{version}
-%patch0 -p0
-cp -av %{SOURCE1} .
+
+# Update permissions for debuginfo package
+find . -name "*.c" -o -name "*.h" -o -name "*.cpp" |xargs chmod 0644
 
 %build
 # we have the necessary prerequisites, so enable optional modules
@@ -122,21 +117,17 @@ rm -rf %{buildroot}
 
 %files -n %{libname}
 %defattr(-,root,root,-)
-%{_libdir}/libbotan*-*.so
-%doc _doc/readme.txt _doc/log.txt _doc/thanks.txt _doc/credits.txt 
-%doc _doc/license.txt _doc/fips140.tex _doc/pgpkeys.asc
-%doc README.fedora
+%{_libdir}/libbotan-*.so.*
+%doc _doc/readme.txt
 
 
 %files -n %{develname}
 %defattr(-,root,root,-)
 %doc doc/examples
-%doc _doc/api* _doc/tutorial*
-%{_bindir}/botan-config
 %{_includedir}/*
-%exclude %{_libdir}/libbotan.a
-%{_libdir}/libbotan.so
-%{_libdir}/pkgconfig/botan-1.8.pc
+%_bindir/botan-config-1.10
+%{_libdir}/libbotan-1.10.so
+%{_libdir}/pkgconfig/botan-1.10.pc
 
 %files -n %{staticname}
 %defattr(-,root,root)
