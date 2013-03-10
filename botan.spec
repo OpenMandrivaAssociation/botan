@@ -1,27 +1,23 @@
-%define libname %mklibname %{name}1.10_ 0
-%define develname %mklibname %{name}1.10 -d
-%define staticname %mklibname %{name}1.10 -s -d
+%define	api	1.10
+%define	major	0
+%define libname %mklibname %{name} %{api} %{major}
+%define devname %mklibname %{name} %{api} -d
 
+Summary:        Crypto library written in C++
 Name:           botan
 Version:        1.10.3
 Release:        1
-Summary:        Crypto library written in C++
-
 Group:          System/Libraries
 License:        BSD
-URL:            http://botan.randombit.net/
-Source0:        http://files.randombit.net/botan/v%(echo %version |cut -d. -f1-2)/Botan-%version.tbz
+Url:            http://botan.randombit.net/
+Source0:        http://files.randombit.net/botan/v%(echo %{version} |cut -d. -f1-2)/Botan-%{version}.tbz
 # Much better suited for crosscompiles
-Source1:	Botan-1.8.8-cmake-buildfiles.tar.xz
 
-BuildRequires:  gcc-c++
 BuildRequires:  python
-
 BuildRequires:  bzip2-devel
-BuildRequires:  zlib-devel
 BuildRequires:  gmp-devel
-BuildRequires:  openssl-devel
-
+BuildRequires:  pkgconfig(openssl)
+BuildRequires:  pkgconfig(zlib)
 
 %description
 Botan is a BSD-licensed crypto library written in C++. It provides a
@@ -31,14 +27,12 @@ system, and a wide variety of other features, all written in portable
 C++. The API reference, tutorial, and examples may help impart the
 flavor of the library.
 
-%package -n     %{libname}
+%package -n	%{libname}
+Summary:	Main library for %{name}
+Group:		System/Libraries
+Provides:	%{name} = %{version}-%{release}
 
-#(!) summary for main lib RPM only
-Summary:        Main library for %{name}
-Group:          System/Libraries
-Provides:       %{name} = %{version}-%{release}
-
-%description -n %{libname}
+%description -n	%{libname}
 Botan is a BSD-licensed crypto library written in C++. It provides a
 wide variety of basic cryptographic algorithms, X.509 certificates and
 CRLs, PKCS \#10 certificate requests, a filter/pipe message processing
@@ -46,32 +40,19 @@ system, and a wide variety of other features, all written in portable
 C++. The API reference, tutorial, and examples may help impart the
 flavor of the library.
 
-%package        -n %{develname}
-Summary:        Development files for %{name}
-Group:          Development/Other
-Requires:       %{libname} = %{version}
-Requires:       pkgconfig
-Requires:       bzip2-devel
-Requires:       zlib-devel
-Requires:       gmp-devel
-Requires:       openssl-devel
-Provides:       %{name}-devel = %{version}-%{release}
+%package -n	%{devname}
+Summary:	Development files for %{name}
+Group:		Development/Other
+Requires:	%{libname} = %{version}
+Provides:	%{name}-devel = %{version}-%{release}
+Obsoletes:	%{_lib}botan1.10-static-devel
 
-%description    -n %{develname}
-The %{name}-devel package contains libraries and header files for
+%description -n	%{devname}
+This package contains libraries and header files for
 developing applications that use %{name}.
 
-%package -n %{staticname}
-Summary:        Static libraries for %{name}
-Group:          Development/Other
-Requires:       %{name}-devel = %{version}-%{release}
-
-%description  -n %{staticname}
-The %{staticname} package contains the static libraries
-of %{name}.
-
 %prep
-%setup -q -n Botan-%{version}
+%setup -qn Botan-%{version}
 
 # Update permissions for debuginfo package
 find . -name "*.c" -o -name "*.h" -o -name "*.cpp" |xargs chmod 0644
@@ -95,43 +76,14 @@ find . -name "*.c" -o -name "*.h" -o -name "*.cpp" |xargs chmod 0644
 # (ab)using CXX as an easy way to inject our CXXFLAGS
 make CXX="g++ ${CXXFLAGS:-%{optflags}}" %{?_smp_mflags}
 
-
 %install
-rm -rf %{buildroot}
 make install \
-     DESTDIR=%{buildroot}%{_prefix} \
-     DOCDIR=_doc \
-     INSTALL_CMD_EXEC="install -p -m 755" \
-     INSTALL_CMD_DATA="install -p -m 644" \
+	DESTDIR=%{buildroot}%{_prefix} \
+	DOCDIR=_doc \
+	INSTALL_CMD_EXEC="install -p -m 755" \
+	INSTALL_CMD_DATA="install -p -m 644" \
 
-
-%clean
-rm -rf %{buildroot}
-
-
-%post -p /sbin/ldconfig
-
-
-%postun -p /sbin/ldconfig
-
-
-%files -n %{libname}
-%defattr(-,root,root,-)
-%{_libdir}/libbotan-*.so.*
-%doc _doc/readme.txt
-
-
-%files -n %{develname}
-%defattr(-,root,root,-)
-%doc doc/examples
-%{_includedir}/*
-%_bindir/botan-config-1.10
-%{_libdir}/libbotan-1.10.so
-%{_libdir}/pkgconfig/botan-1.10.pc
-
-%files -n %{staticname}
-%defattr(-,root,root)
-%attr(0644,root,root) %{_libdir}/lib*.a
+rm -f %{buildroot}%{_libdir}/*.a
 
 %check
 make CXX="g++ ${CXXFLAGS:-%{optflags}}" %{?_smp_mflags} check
@@ -142,11 +94,14 @@ awk '/\[.*\]/{f=0} /\[(RC5.*|RC6|IDEA)\]/{f=1} (f && !/^#/){sub(/^/,"#")} {print
     checks/validate.dat.orig > checks/validate.dat
 LD_LIBRARY_PATH=%{buildroot}%{_libdir} ./check --validate
 
+%files -n %{libname}
+%{_libdir}/libbotan-%{api}.so.%{major}*
 
-
-
-%changelog
-* Fri Aug 12 2011 Shlomi Fish <shlomif@mandriva.org> 1.8.13-2mdv2012.0
-+ Revision: 694224
-- import botan
+%files -n %{devname}
+%doc _doc/readme.txt
+%doc doc/examples
+%{_includedir}/*
+%{_bindir}/botan-config-%{api}
+%{_libdir}/*.so
+%{_libdir}/pkgconfig/*.pc
 
