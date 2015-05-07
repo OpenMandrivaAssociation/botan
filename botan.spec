@@ -5,8 +5,8 @@
 
 Summary:        Crypto library written in C++
 Name:           botan
-Version:        1.10.8
-Release:        2
+Version:        1.10.9
+Release:        1
 Group:          System/Libraries
 License:        BSD
 Url:            http://botan.randombit.net/
@@ -74,7 +74,7 @@ find . -name "*.c" -o -name "*.h" -o -name "*.cpp" |xargs chmod 0644
         --disable-modules=%{disable_modules}
 
 # (ab)using CXX as an easy way to inject our CXXFLAGS
-make CXX="g++ ${CXXFLAGS:-%{optflags}}" %{?_smp_mflags}
+make CXX="%{__cxx} ${CXXFLAGS:-%{optflags}}" %{?_smp_mflags}
 
 %install
 make install \
