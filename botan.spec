@@ -86,7 +86,7 @@ make install \
 rm -f %{buildroot}%{_libdir}/*.a
 
 %check
-make CXX="g++ ${CXXFLAGS:-%{optflags}}" %{?_smp_mflags} check
+make CXX="%{__cxx} ${CXXFLAGS:-%{optflags}}" %{?_smp_mflags} check
 
 # these checks would fail
 mv checks/validate.dat{,.orig}
