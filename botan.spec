@@ -1,11 +1,11 @@
-%define	api	1.10
-%define	major	0
+%define	api	1.11
+%define	major	8
 %define libname %mklibname %{name} %{api} %{major}
 %define devname %mklibname %{name} %{api} -d
 
 Summary:        Crypto library written in C++
 Name:           botan
-Version:        1.10.9
+Version:        1.11.8
 Release:        1
 Group:          System/Libraries
 License:        BSD
@@ -18,6 +18,7 @@ BuildRequires:  bzip2-devel
 BuildRequires:  gmp-devel
 BuildRequires:  pkgconfig(openssl)
 BuildRequires:  pkgconfig(zlib)
+BuildRequires:  boost-devel
 
 %description
 Botan is a BSD-licensed crypto library written in C++. It provides a
@@ -59,22 +60,21 @@ find . -name "*.c" -o -name "*.h" -o -name "*.cpp" |xargs chmod 0644
 
 %build
 # we have the necessary prerequisites, so enable optional modules
-%define enable_modules gnump,bzip2,zlib,openssl
+%define enable_modules gnump,bzip2,zlib,openssl,sqlite3
 
 # fixme: maybe disable unix_procs, very slow.
-%define disable_modules %{nil}
+%define disable_modules proc_walk,unix_procs
 
 ./configure.py \
         --prefix=%{_prefix} \
         --libdir=%{_lib} \
-        --cc=gcc \
+        --cc=clang \
         --os=linux \
         --cpu=%{_arch} \
         --enable-modules=%{enable_modules} \
         --disable-modules=%{disable_modules}
 
-# (ab)using CXX as an easy way to inject our CXXFLAGS
-make CXX="%{__cxx} ${CXXFLAGS:-%{optflags}}" %{?_smp_mflags}
+%make LIB_OPT="%{optflags}"
 
 %install
 make install \
@@ -86,22 +86,14 @@ make install \
 rm -f %{buildroot}%{_libdir}/*.a
 
 %check
-make CXX="%{__cxx} ${CXXFLAGS:-%{optflags}}" %{?_smp_mflags} check
-
-# these checks would fail
-mv checks/validate.dat{,.orig}
-awk '/\[.*\]/{f=0} /\[(RC5.*|RC6|IDEA)\]/{f=1} (f && !/^#/){sub(/^/,"#")} {print}' \
-    checks/validate.dat.orig > checks/validate.dat
-LD_LIBRARY_PATH=%{buildroot}%{_libdir} ./check --validate
+LD_LIBRARY_PATH=%{buildroot}%{_libdir} ./botan-test
 
 %files -n %{libname}
 %{_libdir}/libbotan-%{api}.so.%{major}*
 
 %files -n %{devname}
-%doc _doc/readme.txt
-%doc doc/examples
 %{_includedir}/*
 %{_bindir}/botan-config-%{api}
+%{_bindir}/%{name}
 %{_libdir}/*.so
 %{_libdir}/pkgconfig/*.pc
-
