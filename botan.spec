@@ -6,7 +6,7 @@
 Summary:        Crypto library written in C++
 Name:           botan
 Version:        1.11.8
-Release:        1
+Release:        2
 Group:          System/Libraries
 License:        BSD
 Url:            http://botan.randombit.net/
@@ -84,6 +84,8 @@ make install \
 	INSTALL_CMD_DATA="install -p -m 644" \
 
 rm -f %{buildroot}%{_libdir}/*.a
+# add backward compat for qca
+ln -sf %{buildroot}%{_libdir}/pkgconfig/botan-1.11.pc botan-1.10.pc
 
 %check
 LD_LIBRARY_PATH=%{buildroot}%{_libdir} ./botan-test
