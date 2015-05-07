@@ -1,12 +1,12 @@
-%define	api	1.11
-%define	major	8
+%define	api	1.10
+%define	major	0
 %define libname %mklibname %{name} %{api} %{major}
 %define devname %mklibname %{name} %{api} -d
 
 Summary:        Crypto library written in C++
 Name:           botan
-Version:        1.11.8
-Release:        2
+Version:        1.10.9
+Release:        5
 Group:          System/Libraries
 License:        BSD
 Url:            http://botan.randombit.net/
@@ -84,11 +84,9 @@ make install \
 	INSTALL_CMD_DATA="install -p -m 644" \
 
 rm -f %{buildroot}%{_libdir}/*.a
-# add backward compat for qca
-ln -sf %{buildroot}%{_libdir}/pkgconfig/botan-1.11.pc botan-1.10.pc
 
 %check
-LD_LIBRARY_PATH=%{buildroot}%{_libdir} ./botan-test
+%make check
 
 %files -n %{libname}
 %{_libdir}/libbotan-%{api}.so.%{major}*
@@ -96,6 +94,5 @@ LD_LIBRARY_PATH=%{buildroot}%{_libdir} ./botan-test
 %files -n %{devname}
 %{_includedir}/*
 %{_bindir}/botan-config-%{api}
-%{_bindir}/%{name}
 %{_libdir}/*.so
 %{_libdir}/pkgconfig/*.pc
