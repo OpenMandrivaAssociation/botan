@@ -1,12 +1,12 @@
-%define	api	1.10
-%define	major	0
+%define	api 1.10
+%define	major 0
 %define libname %mklibname %{name} %{api} %{major}
 %define devname %mklibname %{name} %{api} -d
 
 Summary:        Crypto library written in C++
 Name:           botan
 Version:        1.10.9
-Release:        5
+Release:        6
 Group:          System/Libraries
 License:        BSD
 Url:            http://botan.randombit.net/
