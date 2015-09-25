@@ -100,7 +100,9 @@ make install \
 rm -f %{buildroot}%{_libdir}/*.a
 
 %check
+%ifnarch %{ix86}
 ./botan-test
+%endif
 
 %files -n %{libname}
 %{_libdir}/libbotan-%{api}.so.%{major}*
