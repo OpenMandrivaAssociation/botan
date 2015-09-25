@@ -3,15 +3,18 @@
 %define libname %mklibname %{name} %{api} %{major}
 %define devname %mklibname %{name} %{api} -d
 
+%define compiler %(echo %{__cc} |cut -d/ -f4)
+
 Summary:        Crypto library written in C++
 Name:           botan
-Version:        1.11.10
+Version:        1.11.20
 Release:        1
 Group:          System/Libraries
 License:        BSD
 Url:            http://botan.randombit.net/
-Source0:        http://files.randombit.net/botan/v%(echo %{version} |cut -d. -f1-2)/Botan-%{version}.tbz
+Source0:        http://botan.randombit.net/releases/Botan-%{version}.tgz
 Patch0:		botan-aarch64.patch
+Patch1:		botan-1.11.20-build-python.patch
 # Much better suited for crosscompiles
 
 BuildRequires:  python
@@ -66,7 +69,7 @@ export PATH=`pwd`/pybin:$PATH
 
 %build
 # we have the necessary prerequisites, so enable optional modules
-%define enable_modules gnump,bzip2,zlib,openssl,sqlite3
+%define enable_modules bzip2,zlib,openssl,sqlite3
 
 # fixme: maybe disable unix_procs, very slow.
 %define disable_modules proc_walk,unix_procs
@@ -74,13 +77,13 @@ export PATH=`pwd`/pybin:$PATH
 ./configure.py \
         --prefix=%{_prefix} \
         --libdir=%{_lib} \
-        --cc=clang \
+        --cc=%compiler \
         --os=linux \
         --cpu=%{_arch} \
         --enable-modules=%{enable_modules} \
         --disable-modules=%{disable_modules}
 
-%make LIB_OPT="%{optflags}"
+%make CXX="%{__cxx} -pthread" AR="%{__ar} crs" LIB_OPT="-c %{optflags}"
 
 %install
 make install \
