@@ -5,12 +5,13 @@
 
 Summary:        Crypto library written in C++
 Name:           botan
-Version:        1.10.9
-Release:        8
+Version:        1.11.10
+Release:        1
 Group:          System/Libraries
 License:        BSD
 Url:            http://botan.randombit.net/
 Source0:        http://files.randombit.net/botan/v%(echo %{version} |cut -d. -f1-2)/Botan-%{version}.tbz
+Patch0:		botan-aarch64.patch
 # Much better suited for crosscompiles
 
 BuildRequires:  python
@@ -54,6 +55,7 @@ developing applications that use %{name}.
 
 %prep
 %setup -qn Botan-%{version}
+%apply_patches
 
 # Update permissions for debuginfo package
 find . -name "*.c" -o -name "*.h" -o -name "*.cpp" |xargs chmod 0644
