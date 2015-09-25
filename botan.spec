@@ -60,6 +60,10 @@ developing applications that use %{name}.
 # Update permissions for debuginfo package
 find . -name "*.c" -o -name "*.h" -o -name "*.cpp" |xargs chmod 0644
 
+mkdir pybin
+ln -s %{_bindir}/python2 pybin/python
+export PATH=`pwd`/pybin:$PATH
+
 %build
 # we have the necessary prerequisites, so enable optional modules
 %define enable_modules gnump,bzip2,zlib,openssl,sqlite3
