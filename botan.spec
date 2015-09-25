@@ -46,6 +46,13 @@ system, and a wide variety of other features, all written in portable
 C++. The API reference, tutorial, and examples may help impart the
 flavor of the library.
 
+%package -n	python-%{name}
+Summary:	Python lib for %{name}
+Group:		Development/Python
+
+%description -n	python-%{name}
+Python module for %{name}
+
 %package -n	%{devname}
 Summary:	Development files for %{name}
 Group:		Development/Other
@@ -99,7 +106,6 @@ rm -f %{buildroot}%{_libdir}/*.a
 %{_bindir}/botan
 %{_docdir}/%{name}-%{version}/manual/*
 %{_docdir}/%{name}-%{version}/*.txt
-%{python_sitearch}/botan.py
 
 %files -n %{libname}
 %{_libdir}/libbotan-%{api}.so.%{major}*
@@ -108,3 +114,6 @@ rm -f %{buildroot}%{_libdir}/*.a
 %{_includedir}/*
 %{_libdir}/*.so
 %{_libdir}/pkgconfig/*.pc
+
+%files -n python-%{name}
+%{python_sitearch}/botan.py
