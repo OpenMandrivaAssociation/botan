@@ -1,5 +1,5 @@
-%define	api 1.10
-%define	major 0
+%define	api 1.11
+%define	major 20
 %define libname %mklibname %{name} %{api} %{major}
 %define devname %mklibname %{name} %{api} -d
 
@@ -63,10 +63,6 @@ developing applications that use %{name}.
 # Update permissions for debuginfo package
 find . -name "*.c" -o -name "*.h" -o -name "*.cpp" |xargs chmod 0644
 
-mkdir pybin
-ln -s %{_bindir}/python2 pybin/python
-export PATH=`pwd`/pybin:$PATH
-
 %build
 # we have the necessary prerequisites, so enable optional modules
 %define enable_modules bzip2,zlib,openssl,sqlite3
@@ -80,10 +76,11 @@ export PATH=`pwd`/pybin:$PATH
         --cc=%compiler \
         --os=linux \
         --cpu=%{_arch} \
+	--destdir=%{buildroot}%{_prefix} \
         --enable-modules=%{enable_modules} \
         --disable-modules=%{disable_modules}
 
-%make CXX="%{__cxx} -pthread" AR="%{__ar} crs" LIB_OPT="-c %{optflags}"
+%make
 
 %install
 make install \
@@ -97,11 +94,16 @@ rm -f %{buildroot}%{_libdir}/*.a
 %check
 %make check
 
+%files
+%{_bindir}/botan
+%{_docdir}/%{name}-%{version}/manual/*
+%{_docdir}/%{name}-%{version}/*.txt
+%{python_sitearch}/botan.py
+
 %files -n %{libname}
 %{_libdir}/libbotan-%{api}.so.%{major}*
 
 %files -n %{devname}
 %{_includedir}/*
-%{_bindir}/botan-config-%{api}
 %{_libdir}/*.so
 %{_libdir}/pkgconfig/*.pc
