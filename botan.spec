@@ -9,7 +9,7 @@
 Summary:        Crypto library written in C++
 Name:           botan
 Version:        1.11.20
-Release:        2
+Release:        3
 Group:          System/Libraries
 License:        BSD
 Url:            http://botan.randombit.net/
@@ -102,18 +102,16 @@ rm -f %{buildroot}%{_libdir}/*.a
 %check
 ./botan-test
 
-%files
-%{_bindir}/botan
-%{_docdir}/%{name}-%{version}/manual/*
-%{_docdir}/%{name}-%{version}/*.txt
-
 %files -n %{libname}
 %{_libdir}/libbotan-%{api}.so.%{major}*
 
 %files -n %{devname}
+%{_bindir}/botan
 %{_includedir}/*
 %{_libdir}/*.so
 %{_libdir}/pkgconfig/*.pc
+%{_docdir}/%{name}-%{version}/manual/*
+%{_docdir}/%{name}-%{version}/*.txt
 
 %files -n python-%{name}
 %{python_sitearch}/botan.py
