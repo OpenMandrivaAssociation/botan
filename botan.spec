@@ -2,6 +2,7 @@
 %define	major 20
 %define libname %mklibname %{name} %{api} %{major}
 %define devname %mklibname %{name} %{api} -d
+%define debug_package %nil
 
 %define compiler %(echo %{__cc} |cut -d/ -f4)
 
