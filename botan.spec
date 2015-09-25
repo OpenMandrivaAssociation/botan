@@ -100,7 +100,7 @@ make install \
 rm -f %{buildroot}%{_libdir}/*.a
 
 %check
-%make check
+./botan-test
 
 %files
 %{_bindir}/botan
