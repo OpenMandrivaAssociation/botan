@@ -1,5 +1,5 @@
 %define	api 1.11
-%define	major 20
+%define	major 21
 %define libname %mklibname %{name} %{api} %{major}
 %define devname %mklibname %{name} %{api} -d
 %define debug_package %nil
@@ -8,14 +8,13 @@
 
 Summary:        Crypto library written in C++
 Name:           botan
-Version:        1.11.20
-Release:        3
+Version:        1.11.21
+Release:        1
 Group:          System/Libraries
 License:        BSD
 Url:            http://botan.randombit.net/
 Source0:        http://botan.randombit.net/releases/Botan-%{version}.tgz
 Patch0:		botan-aarch64.patch
-Patch1:		botan-1.11.20-build-python.patch
 # Much better suited for crosscompiles
 
 BuildRequires:  python
@@ -112,7 +111,7 @@ rm -f %{buildroot}%{_libdir}/*.a
 %{_includedir}/*
 %{_libdir}/*.so
 %{_libdir}/pkgconfig/*.pc
-%{_docdir}/%{name}-%{version}/manual/*
+%{_docdir}/%{name}-%{version}/manual
 %{_docdir}/%{name}-%{version}/*.txt
 
 %files -n python-%{name}
