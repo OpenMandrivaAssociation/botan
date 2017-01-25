@@ -1,4 +1,2 @@
-removed_sources:
-  Botan-1.11.20.tgz: 4e2819c23d42a0638edcbff816165b39df5208fa
 sources:
-  Botan-1.11.21.tgz: 513099c151898c629b334165b7d2cc2b4c06e2a1
+  Botan-2.0.1.tgz: 24cda04c0d76474a5be5de03e7588b4e989709de
