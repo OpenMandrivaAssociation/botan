@@ -83,6 +83,7 @@ find . -name "*.c" -o -name "*.h" -o -name "*.cpp" |xargs chmod 0644
         --cc=%compiler \
         --os=linux \
         --cpu=%{_arch} \
+	--with-openmp \
         --enable-modules=%{enable_modules} \
         --disable-modules=%{disable_modules}
 
@@ -90,7 +91,7 @@ find . -name "*.c" -o -name "*.h" -o -name "*.cpp" |xargs chmod 0644
 
 %install
 make install \
-	DESTDIR=%{buildroot}%{_prefix} \
+	DESTDIR="%{buildroot}%{_prefix}" \
 	DOCDIR=_doc \
 	INSTALL_CMD_EXEC="install -p -m 755" \
 	INSTALL_CMD_DATA="install -p -m 644" \
