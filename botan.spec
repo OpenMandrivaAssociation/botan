@@ -83,7 +83,6 @@ find . -name "*.c" -o -name "*.h" -o -name "*.cpp" |xargs chmod 0644
         --cc=%compiler \
         --os=linux \
         --cpu=%{_arch} \
-	--destdir=%{buildroot}%{_prefix} \
         --enable-modules=%{enable_modules} \
         --disable-modules=%{disable_modules}
 
