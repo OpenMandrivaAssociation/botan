@@ -78,7 +78,7 @@ find . -name "*.c" -o -name "*.h" -o -name "*.cpp" |xargs chmod 0644
 %define disable_modules proc_walk,unix_procs
 
 ./configure.py \
-        --prefix=%{_prefix} \
+        --prefix="%{buildroot}%{_prefix}" \
         --libdir=%{_lib} \
         --cc=%compiler \
         --os=linux \
