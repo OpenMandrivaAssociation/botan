@@ -76,7 +76,7 @@ find . -name "*.c" -o -name "*.h" -o -name "*.cpp" |xargs chmod 0644
 %define disable_modules proc_walk,unix_procs
 
 ./configure.py \
-	--prefix="%{buildroot}%{_prefix}" \
+	--prefix=%{_prefix} \
 	--libdir=%{_lib} \
 	--cc=%compiler \
 	--os=linux \
@@ -88,7 +88,7 @@ find . -name "*.c" -o -name "*.h" -o -name "*.cpp" |xargs chmod 0644
 %make
 
 %install
-make DESTDIR="%{buildroot}%{_prefix}" install
+make DESTDIR="%{buildroot}" install --prefix=%{_prefix} --libdir=%{_lib}
 
 rm -f %{buildroot}%{_libdir}/*.a
 
