@@ -88,7 +88,7 @@ find . -name "*.c" -o -name "*.h" -o -name "*.cpp" |xargs chmod 0644
 %make
 
 %install
-make DESTDIR="%{buildroot}" install --prefix=%{_prefix} --libdir=%{_lib}
+make DESTDIR="%{buildroot}" install
 
 rm -f %{buildroot}%{_libdir}/*.a
 
