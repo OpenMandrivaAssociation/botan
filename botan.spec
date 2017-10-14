@@ -1,5 +1,5 @@
 %define api 2
-%define major 0
+%define major 3
 %define libname %mklibname %{name} %{api} %{major}
 %define devname %mklibname %{name} %{api} -d
 %define debug_package %nil
@@ -34,6 +34,8 @@ flavor of the library.
 Summary:	Main library for %{name}
 Group:		System/Libraries
 Provides:	%{name} = %{EVRD}
+Obsoletes:	%{mklibname botan 1.11 21} < 2.3.0
+Obsoletes:	%{mklibname botan 1.11 30} < 2.3.0
 
 %description -n %{libname}
 Botan is a BSD-licensed crypto library written in C++. It provides a
@@ -56,6 +58,7 @@ Group:		Development/Other
 Requires:	%{libname} = %{EVRD}
 Provides:	%{name}-devel = %{EVRD}
 Obsoletes:	%{_lib}botan1.10-static-devel
+Obsoletes:	%{mklibname botan 1.11 -d } < 2.3.0
 
 %description -n %{devname}
 This package contains libraries and header files for
@@ -109,4 +112,4 @@ rm -f %{buildroot}%{_libdir}/*.a
 %{_docdir}/%{name}-%{version}/*.txt
 
 %files -n python-%{name}
-%{python_sitearch}/botan.py
+%{python_sitearch}/botan2.py
