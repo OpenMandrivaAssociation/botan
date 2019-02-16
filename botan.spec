@@ -19,6 +19,7 @@ BuildRequires:	bzip2-devel
 BuildRequires:	gmp-devel
 BuildRequires:	pkgconfig(openssl)
 BuildRequires:	pkgconfig(zlib)
+BuildRequires:	pkgconfig(sqlite3)
 BuildRequires:	boost-devel
 
 %description
