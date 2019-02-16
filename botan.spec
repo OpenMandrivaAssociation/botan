@@ -1,5 +1,5 @@
 %define api 2
-%define major 3
+%define major 9
 %define libname %mklibname %{name} %{api} %{major}
 %define devname %mklibname %{name} %{api} -d
 %define debug_package %nil
@@ -8,13 +8,12 @@
 
 Summary:	Crypto library written in C++
 Name:		botan
-Version:	2.3.0
-Release:	2
+Version:	2.9.0
+Release:	1
 Group:		System/Libraries
 License:	BSD
 Url:		http://botan.randombit.net/
 Source0:	http://botan.randombit.net/releases/Botan-%{version}.tgz
-Patch0:		botan-aarch64.patch
 BuildRequires:	python
 BuildRequires:	bzip2-devel
 BuildRequires:	gmp-devel
@@ -65,8 +64,7 @@ This package contains libraries and header files for
 developing applications that use %{name}.
 
 %prep
-%setup -qn Botan-%{version}
-%apply_patches
+%autosetup -p1 -n Botan-%{version}
 
 # Update permissions for debuginfo package
 find . -name "*.c" -o -name "*.h" -o -name "*.cpp" |xargs chmod 0644
@@ -110,6 +108,8 @@ rm -f %{buildroot}%{_libdir}/*.a
 %{_libdir}/pkgconfig/*.pc
 %{_docdir}/%{name}-%{version}/manual
 %{_docdir}/%{name}-%{version}/*.txt
+%{_mandir}/man1/botan.1*
 
 %files -n python-%{name}
 %{python_sitearch}/botan2.py
+%{python_sitearch}/__pycache__/*
