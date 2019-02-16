@@ -109,7 +109,6 @@ rm -f %{buildroot}%{_libdir}/*.a
 %{_libdir}/pkgconfig/*.pc
 %{_docdir}/%{name}-%{version}/manual
 %{_docdir}/%{name}-%{version}/*.txt
-%{_mandir}/man1/botan.1*
 
 %files -n python-%{name}
 %{python_sitearch}/botan2.py
