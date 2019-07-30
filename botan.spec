@@ -1,5 +1,5 @@
-%define api 2
-%define major 9
+%define api %(echo %{version} |cut -d. -f1)
+%define major %(echo %{version} |cut -d. -f2)
 %define libname %mklibname %{name} %{api} %{major}
 %define devname %mklibname %{name} %{api} -d
 %define debug_package %nil
@@ -8,12 +8,12 @@
 
 Summary:	Crypto library written in C++
 Name:		botan
-Version:	2.9.0
+Version:	2.11.0
 Release:	1
 Group:		System/Libraries
 License:	BSD
 Url:		http://botan.randombit.net/
-Source0:	http://botan.randombit.net/releases/Botan-%{version}.tgz
+Source0:	http://botan.randombit.net/releases/Botan-%{version}.tar.xz
 BuildRequires:	python
 BuildRequires:	bzip2-devel
 BuildRequires:	gmp-devel
@@ -77,7 +77,7 @@ find . -name "*.c" -o -name "*.h" -o -name "*.cpp" |xargs chmod 0644
 # fixme: maybe disable unix_procs, very slow.
 %define disable_modules proc_walk,unix_procs
 
-./configure.py \
+CXXFLAGS="%{optflags} -Ofast -fopenmp" LDFLAGS="%{ldflags}" ./configure.py \
 	--prefix=%{_prefix} \
 	--libdir=%{_lib} \
 	--cc=%compiler \
@@ -107,8 +107,9 @@ rm -f %{buildroot}%{_libdir}/*.a
 %{_includedir}/*
 %{_libdir}/*.so
 %{_libdir}/pkgconfig/*.pc
-%{_docdir}/%{name}-%{version}/manual
+%{_docdir}/%{name}-%{version}/handbook
 %{_docdir}/%{name}-%{version}/*.txt
+%{_mandir}/man1/*.1*
 
 %files -n python-%{name}
 %{python_sitearch}/botan2.py
