@@ -21,6 +21,8 @@ BuildRequires:	pkgconfig(openssl)
 BuildRequires:	pkgconfig(zlib)
 BuildRequires:	pkgconfig(sqlite3)
 BuildRequires:	boost-devel
+# For man page (rst2man)
+BuildRequires:	python-docutils
 
 %description
 Botan is a BSD-licensed crypto library written in C++. It provides a
