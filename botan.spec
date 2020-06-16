@@ -6,20 +6,31 @@
 
 %define compiler %(echo %{__cc} |cut -d/ -f4)
 
+# (tpg) optimize it a bit
+%global optflags %{optflags} -Ofast -fopenmp
+
+# (tpg) enable PGO build
+%ifnarch %{ix86} riscv64
+%bcond_without pgo
+%else
+%bcond_with pgo
+%endif
+
 Summary:	Crypto library written in C++
 Name:		botan
-Version:	2.13.0
+Version:	2.14.0
 Release:	1
 Group:		System/Libraries
 License:	BSD
 Url:		http://botan.randombit.net/
 Source0:	http://botan.randombit.net/releases/Botan-%{version}.tar.xz
 BuildRequires:	python
-BuildRequires:	bzip2-devel
-BuildRequires:	gmp-devel
+BuildRequires:	pkgconfig(bzip2)
+BuildRequires:	pkgconfig(gmp)
 BuildRequires:	pkgconfig(openssl)
 BuildRequires:	pkgconfig(zlib)
 BuildRequires:	pkgconfig(sqlite3)
+BuildRequires:	pkgconfig(liblzma)
 BuildRequires:	boost-devel
 # For man page (rst2man)
 BuildRequires:	python-docutils
@@ -74,12 +85,19 @@ find . -name "*.c" -o -name "*.h" -o -name "*.cpp" |xargs chmod 0644
 
 %build
 # we have the necessary prerequisites, so enable optional modules
-%define enable_modules bzip2,zlib,openssl,sqlite3
+%define enable_modules bzip2,zlib,openssl,sqlite3,lzma
 
 # fixme: maybe disable unix_procs, very slow.
 %define disable_modules proc_walk,unix_procs
 
-CXXFLAGS="%{optflags} -Ofast -fopenmp" LDFLAGS="%{ldflags}" ./configure.py \
+%if %{with pgo}
+export LD_LIBRARY_PATH="$(pwd)"
+export LLVM_PROFILE_FILE=%{name}-%p.profile.d
+CFLAGS="%{optflags} -fprofile-instr-generate" \
+CXXFLAGS="%{optflags} -fprofile-instr-generate" \
+FFLAGS="$CFLAGS" \
+FCFLAGS="$CFLAGS" \
+LDFLAGS="%{ldflags} -fprofile-instr-generate" ./configure.py \
 	--prefix=%{_prefix} \
 	--libdir=%{_lib} \
 	--cc=%compiler \
@@ -89,10 +107,36 @@ CXXFLAGS="%{optflags} -Ofast -fopenmp" LDFLAGS="%{ldflags}" ./configure.py \
 	--enable-modules=%{enable_modules} \
 	--disable-modules=%{disable_modules}
 
-%make
+%make_build
+
+./botan-test
+
+unset LD_LIBRARY_PATH
+unset LLVM_PROFILE_FILE
+llvm-profdata merge --output=%{name}.profile *.profile.d
+rm -f *.profile.d
+make clean
+
+CFLAGS="%{optflags} -fprofile-instr-use=$(realpath %{name}.profile)" \
+CXXFLAGS="%{optflags} -fprofile-instr-use=$(realpath %{name}.profile)" \
+FFLAGS="$CFLAGS" \
+FCFLAGS="$CFLAGS" \
+LDFLAGS="%{ldflags} -fprofile-instr-use=$(realpath %{name}.profile)" \
+%endif
+./configure.py \
+	--prefix=%{_prefix} \
+	--libdir=%{_lib} \
+	--cc=%compiler \
+	--os=linux \
+	--cpu=%{_arch} \
+	--with-openmp \
+	--enable-modules=%{enable_modules} \
+	--disable-modules=%{disable_modules}
+
+%make_build
 
 %install
-make DESTDIR="%{buildroot}" install
+%make_install DESTDIR="%{buildroot}"
 
 rm -f %{buildroot}%{_libdir}/*.a
 
