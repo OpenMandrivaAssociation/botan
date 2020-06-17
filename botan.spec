@@ -113,7 +113,7 @@ LDFLAGS="%{ldflags} -fprofile-instr-generate" ./configure.py \
 
 unset LD_LIBRARY_PATH
 unset LLVM_PROFILE_FILE
-llvm-profdata merge --output=%{name}.profile *.profile.d
+llvm-profdata merge --output=%{name}.profile $(find . -type f -name "*.profile.d")
 rm -f *.profile.d
 make clean
 
@@ -142,6 +142,7 @@ rm -f %{buildroot}%{_libdir}/*.a
 
 %check
 %ifnarch %{ix86}
+export LD_LIBRARY_PATH="$(pwd)"
 ./botan-test
 %endif
 
