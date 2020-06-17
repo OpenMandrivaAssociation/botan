@@ -109,7 +109,7 @@ LDFLAGS="%{ldflags} -fprofile-instr-generate" ./configure.py \
 
 %make_build
 
-./botan-test
+./botan-test ||:
 
 unset LD_LIBRARY_PATH
 unset LLVM_PROFILE_FILE
