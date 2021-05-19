@@ -8,7 +8,7 @@
 %define compiler %(echo %{__cc} |cut -d/ -f4)
 
 # (tpg) optimize it a bit
-%global optflags %{optflags} -Ofast -fopenmp
+%global optflags %{optflags} -O3 -fopenmp
 
 # (tpg) enable PGO build
 %ifnarch %{ix86} riscv64
