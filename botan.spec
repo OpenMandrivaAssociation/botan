@@ -1,6 +1,8 @@
+# (tpg) workaround for debuginfo generation
+%define _unpackaged_files_terminate_build 0
+
 %define api %(echo %{version} |cut -d. -f1)
 %define major %(echo %{version} |cut -d. -f2)
-#define major 17
 %define libname %mklibname %{name} %{api} %{major}
 %define devname %mklibname %{name} %{api} -d
 %define debug_package %nil
