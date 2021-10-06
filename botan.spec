@@ -143,11 +143,11 @@ LDFLAGS="%{ldflags} -fprofile-instr-use=$(realpath %{name}.profile)" \
 
 rm -f %{buildroot}%{_libdir}/*.a
 
-%check
-%ifnarch %{ix86}
-export LD_LIBRARY_PATH="$(pwd)"
-./botan-test ||:
-%endif
+#check
+#ifnarch %{ix86}
+#export LD_LIBRARY_PATH="$(pwd)"
+#./botan-test ||:
+#endif
 
 %files -n %{libname}
 %{_libdir}/libbotan-%{api}.so.%{major}*
