@@ -13,16 +13,12 @@
 %global optflags %{optflags} -O3 -fopenmp
 
 # (tpg) enable PGO build
-%ifnarch %{ix86} riscv64
-%bcond_with pgo
-%else
-%bcond_with pgo
-%endif
+%bcond_without pgo
 
 Summary:	Crypto library written in C++
 Name:		botan
 Version:	2.19.1
-Release:	1
+Release:	2
 Group:		System/Libraries
 License:	BSD
 Url:		http://botan.randombit.net/
@@ -94,13 +90,11 @@ find . -name "*.c" -o -name "*.h" -o -name "*.cpp" |xargs chmod 0644
 %define disable_modules proc_walk,unix_procs
 
 %if %{with pgo}
-export LD_LIBRARY_PATH="$(pwd)"
-export LLVM_PROFILE_FILE=%{name}-%p.profile.d
-CFLAGS="%{optflags} -fprofile-instr-generate" \
-CXXFLAGS="%{optflags} -fprofile-instr-generate" \
+CFLAGS="%{optflags} -fprofile-generate" \
+CXXFLAGS="%{optflags} -fprofile-generate" \
 FFLAGS="$CFLAGS" \
 FCFLAGS="$CFLAGS" \
-LDFLAGS="%{ldflags} -fprofile-instr-generate" ./configure.py \
+LDFLAGS="%{build_ldflags} -fprofile-generate" ./configure.py \
 	--prefix=%{_prefix} \
 	--libdir=%{_lib} \
 	--cc=%compiler \
@@ -112,19 +106,19 @@ LDFLAGS="%{ldflags} -fprofile-instr-generate" ./configure.py \
 
 %make_build
 
+export LD_LIBRARY_PATH="$(pwd)"
 ./botan-test ||:
 
-unset LD_LIBRARY_PATH
-unset LLVM_PROFILE_FILE
-llvm-profdata merge --output=%{name}.profile $(find . -type f -name "*.profile.d")
-rm -f *.profile.d
+llvm-profdata merge --output=%{name}-llvm.profdata $(find . -name "*.profraw" -type f)
+PROFDATA="$(realpath %{name}-llvm.profdata)"
+rm -f *.profraw
 make clean
 
-CFLAGS="%{optflags} -fprofile-instr-use=$(realpath %{name}.profile)" \
-CXXFLAGS="%{optflags} -fprofile-instr-use=$(realpath %{name}.profile)" \
+CFLAGS="%{optflags} -fprofile-use=$PROFDATA" \
+CXXFLAGS="%{optflags} -fprofile-use=$PROFDATA" \
 FFLAGS="$CFLAGS" \
 FCFLAGS="$CFLAGS" \
-LDFLAGS="%{ldflags} -fprofile-instr-use=$(realpath %{name}.profile)" \
+LDFLAGS="%{build_ldflags} -fprofile-use=$PROFDATA" \
 %endif
 ./configure.py \
 	--prefix=%{_prefix} \
@@ -157,10 +151,9 @@ export LD_LIBRARY_PATH="$(pwd)"
 %{_includedir}/*
 %{_libdir}/*.so
 %{_libdir}/pkgconfig/*.pc
-%{_docdir}/%{name}-%{version}/handbook
-%{_docdir}/%{name}-%{version}/*.txt
-%{_mandir}/man1/*.1*
+%doc %{_docdir}/%{name}-%{version}/handbook
+%doc %{_docdir}/%{name}-%{version}/*.txt
+%doc %{_mandir}/man1/*.1*
 
 %files -n python-%{name}
 %{python_sitearch}/botan2.py
-%{python_sitearch}/__pycache__/*
