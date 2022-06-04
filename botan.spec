@@ -17,8 +17,8 @@
 
 Summary:	Crypto library written in C++
 Name:		botan
-Version:	2.19.1
-Release:	2
+Version:	2.19.2
+Release:	1
 Group:		System/Libraries
 License:	BSD
 Url:		http://botan.randombit.net/
@@ -84,7 +84,7 @@ find . -name "*.c" -o -name "*.h" -o -name "*.cpp" |xargs chmod 0644
 
 %build
 # we have the necessary prerequisites, so enable optional modules
-%define enable_modules bzip2,zlib,openssl,sqlite3,lzma
+%define enable_modules bzip2,zlib,sqlite3,lzma
 
 # fixme: maybe disable unix_procs, very slow.
 %define disable_modules proc_walk,unix_procs
