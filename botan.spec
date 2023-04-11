@@ -17,8 +17,8 @@
 
 Summary:	Crypto library written in C++
 Name:		botan
-Version:	2.19.3
-Release:	2
+Version:	3.0.0
+Release:	1
 Group:		System/Libraries
 License:	BSD
 Url:		http://botan.randombit.net/
@@ -100,7 +100,6 @@ LDFLAGS="%{build_ldflags} -fprofile-generate" ./configure.py \
 	--cc=%compiler \
 	--os=linux \
 	--cpu=%{_arch} \
-	--with-openmp \
 	--enable-modules=%{enable_modules} \
 	--disable-modules=%{disable_modules}
 
@@ -126,7 +125,6 @@ LDFLAGS="%{build_ldflags} -fprofile-use=$PROFDATA" \
 	--cc=%compiler \
 	--os=linux \
 	--cpu=%{_arch} \
-	--with-openmp \
 	--enable-modules=%{enable_modules} \
 	--disable-modules=%{disable_modules}
 
@@ -156,4 +154,4 @@ export LD_LIBRARY_PATH="$(pwd)"
 %doc %{_mandir}/man1/*.1*
 
 %files -n python-%{name}
-%{python_sitearch}/botan2.py
+%{python_sitearch}/botan3.py
