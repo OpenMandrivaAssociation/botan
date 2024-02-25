@@ -7,7 +7,7 @@
 %define devname %mklibname %{name} %{api} -d
 %define debug_package %nil
 
-%define compiler %(echo %{__cc} |cut -d/ -f4)
+%define compiler %(if [ -h %{__cc} ]; then ls -l %{__cc} |awk '{ print $11; }'; else echo %{__cc} |cut -d/ -f4; fi)
 
 # (tpg) optimize it a bit
 %global optflags %{optflags} -O3 -fopenmp
@@ -17,7 +17,7 @@
 
 Summary:	Crypto library written in C++
 Name:		botan
-Version:	3.2.0
+Version:	3.3.0
 Release:	1
 Group:		System/Libraries
 License:	BSD
@@ -149,6 +149,7 @@ export LD_LIBRARY_PATH="$(pwd)"
 %{_includedir}/*
 %{_libdir}/*.so
 %{_libdir}/pkgconfig/*.pc
+%{_libdir}/cmake/Botan-%{version}
 %doc %{_docdir}/%{name}-%{version}/handbook
 %doc %{_docdir}/%{name}-%{version}/*.txt
 %doc %{_mandir}/man1/*.1*
