@@ -21,7 +21,7 @@ Version:	3.3.0
 Release:	1
 Group:		System/Libraries
 License:	BSD
-Url:		http://botan.randombit.net/
+Url:		https://botan.randombit.net/
 Source0:	http://botan.randombit.net/releases/Botan-%{version}.tar.xz
 BuildRequires:	python
 BuildRequires:	pkgconfig(bzip2)
