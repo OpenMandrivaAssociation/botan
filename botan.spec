@@ -17,7 +17,7 @@
 
 Summary:	Crypto library written in C++
 Name:		botan
-Version:	3.7.1
+Version:	3.8.1
 Release:	1
 Group:		System/Libraries
 License:	BSD
