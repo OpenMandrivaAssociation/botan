@@ -23,6 +23,7 @@ Group:		System/Libraries
 License:	BSD
 Url:		https://botan.randombit.net/
 Source0:	http://botan.randombit.net/releases/Botan-%{version}.tar.xz
+BuildRequires:	make
 BuildRequires:	python
 BuildRequires:	pkgconfig(bzip2)
 BuildRequires:	pkgconfig(gmp)
