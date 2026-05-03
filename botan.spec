@@ -17,12 +17,12 @@
 
 Summary:	Crypto library written in C++
 Name:		botan
-Version:	3.8.1
-Release:	2
+Version:	3.11.1
+Release:	1
 Group:		System/Libraries
 License:	BSD
-Url:		https://botan.randombit.net/
-Source0:	http://botan.randombit.net/releases/Botan-%{version}.tar.xz
+URL:		https://botan.randombit.net/
+Source0:	https://botan.randombit.net/releases/Botan-%{version}.tar.xz
 BuildRequires:	autoconf
 BuildRequires:	automake
 BuildRequires:	libtool-base
@@ -139,6 +139,9 @@ LDFLAGS="%{build_ldflags} -fprofile-use=$PROFDATA" \
 %make_install DESTDIR="%{buildroot}"
 
 rm -f %{buildroot}%{_libdir}/*.a
+# remove doc build leftovers
+rm -f %{buildroot}%{_docdir}/%{name}-%{version}/handbook/.{buildinfo,doctrees}
+
 
 %check
 %ifnarch %{ix86}
