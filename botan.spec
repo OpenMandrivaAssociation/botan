@@ -17,7 +17,7 @@
 
 Summary:	Crypto library written in C++
 Name:		botan
-Version:	3.11.1
+Version:	3.12.0
 Release:	1
 Group:		System/Libraries
 License:	BSD
@@ -140,7 +140,7 @@ LDFLAGS="%{build_ldflags} -fprofile-use=$PROFDATA" \
 
 rm -f %{buildroot}%{_libdir}/*.a
 # remove doc build leftovers
-rm -f %{buildroot}%{_docdir}/%{name}-%{version}/handbook/.{buildinfo,doctrees}
+rm -rf %{buildroot}%{_docdir}/%{name}-%{version}/handbook/.{buildinfo,doctrees}
 
 
 %check
