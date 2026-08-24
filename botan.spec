@@ -95,15 +95,41 @@ rm -rf %{buildroot}%{_docdir}/%{name}-%{version}/handbook/.{buildinfo,doctrees}
 
 # botan-test spends most of its time on invalid inputs and rarely used
 # algorithms; train on the CLI speed suite for common production paths.
+# Extra ChaCha20Poly1305 / RSA-sign loops: a 64-byte-heavy mix and RSA
+# keygen otherwise dominate the profile and regress those two paths.
 %pgo
 export LD_LIBRARY_PATH="$PWD/_OMV_rpm_build${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
-./_OMV_rpm_build/botan speed --msec=200 --buf-size=64,1500,16384 --ecc-groups=secp256r1,secp384r1 \
+_b=./_OMV_rpm_build/botan
+$_b speed --msec=200 --buf-size=64,1024,1500,16384 --ecc-groups=secp256r1,secp384r1 \
 	AES-128/GCM AES-256/GCM ChaCha20Poly1305 \
 	SHA-256 SHA-384 SHA-512 SHA-3 \
 	'HMAC(SHA-256)' \
 	ChaCha AES-256 \
 	X25519 ECDH ECDSA RSA \
 	ML-KEM ML-DSA
+$_b speed --msec=600 --buf-size=1024,4096 ChaCha20Poly1305
+PYTHONPATH="$PWD/src/python${PYTHONPATH:+:$PYTHONPATH}" python - <<'PY'
+import os
+import time
+import botan3 as botan
+
+rng = botan.RandomNumberGenerator()
+sk = botan.PrivateKey.create("rsa", 2048, rng)
+signer = botan.PKSign(sk, "PKCS1v15(SHA-256)")
+msg = os.urandom(48)
+end = time.monotonic() + 8
+while time.monotonic() < end:
+	signer.update(msg)
+	signer.finish(rng)
+
+pt = os.urandom(1024)
+enc = botan.SymmetricCipher("ChaCha20Poly1305", True)
+enc.set_key(os.urandom(32))
+end = time.monotonic() + 4
+while time.monotonic() < end:
+	enc.start(os.urandom(12))
+	enc.finish(pt)
+PY
 
 %if ! %{cross_compiling}
 %check
