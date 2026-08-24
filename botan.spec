@@ -92,6 +92,8 @@ python ./configure.py \
 %make_install -f _OMV_rpm_build/Makefile
 # remove doc build leftovers
 rm -rf %{buildroot}%{_docdir}/%{name}-%{version}/handbook/.{buildinfo,doctrees}
+# botan3.py is copied as a single file; don't leave an empty/partial pycache
+rm -rf %{buildroot}%{python_sitearch}/__pycache__
 
 # botan-test spends most of its time on invalid inputs and rarely used
 # algorithms; train on the CLI speed suite for common production paths.
@@ -155,4 +157,3 @@ export LD_LIBRARY_PATH="$PWD/_OMV_rpm_build${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}
 
 %files -n python-%{name}
 %{python_sitearch}/botan3.py
-%{python_sitearch}/__pycache__/botan3.*
