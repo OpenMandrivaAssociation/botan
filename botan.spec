@@ -1,6 +1,6 @@
 %define api 3
-%define libname %mklibname %{name} %{api}
-%define devname %mklibname %{name} %{api} -d
+%define libname %mklibname botan
+%define devname %mklibname -d botan
 
 Summary:	Crypto library written in C++
 Name:		botan
@@ -31,6 +31,7 @@ flavor of the library.
 Summary:	Main library for %{name}
 Group:		System/Libraries
 Provides:	%{name} = %{EVRD}
+Obsoletes:	%{mklibname botan 3} < %{EVRD}
 Obsoletes:	%{mklibname botan 3 12} < %{EVRD}
 Obsoletes:	%{mklibname botan 1.11 21} < 2.3.0
 Obsoletes:	%{mklibname botan 1.11 30} < 2.3.0
@@ -56,6 +57,7 @@ Summary:	Development files for %{name}
 Group:		Development/Other
 Requires:	%{libname} = %{EVRD}
 Provides:	%{name}-devel = %{EVRD}
+%rename %{mklibname botan 3 -d}
 Obsoletes:	%{_lib}botan1.10-static-devel
 Obsoletes:	%{mklibname botan 1.11 -d} < 2.3.0
 
@@ -91,9 +93,17 @@ python ./configure.py \
 # remove doc build leftovers
 rm -rf %{buildroot}%{_docdir}/%{name}-%{version}/handbook/.{buildinfo,doctrees}
 
+# botan-test spends most of its time on invalid inputs and rarely used
+# algorithms; train on the CLI speed suite for common production paths.
 %pgo
 export LD_LIBRARY_PATH="$PWD/_OMV_rpm_build${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
-./_OMV_rpm_build/botan-test
+./_OMV_rpm_build/botan speed --msec=200 --buf-size=64,1500,16384 --ecc-groups=secp256r1,secp384r1 \
+	AES-128/GCM AES-256/GCM ChaCha20Poly1305 \
+	SHA-256 SHA-384 SHA-512 SHA-3 \
+	'HMAC(SHA-256)' \
+	ChaCha AES-256 \
+	X25519 ECDH ECDSA RSA \
+	ML-KEM ML-DSA
 
 %if ! %{cross_compiling}
 %check
