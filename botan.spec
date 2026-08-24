@@ -1,41 +1,21 @@
-# (tpg) workaround for debuginfo generation
-%define _unpackaged_files_terminate_build 0
-
-%define api %(echo %{version} |cut -d. -f1)
-%define major %(echo %{version} |cut -d. -f2)
-%define libname %mklibname %{name} %{api} %{major}
+%define api 3
+%define libname %mklibname %{name} %{api}
 %define devname %mklibname %{name} %{api} -d
-%define debug_package %nil
-
-%define compiler %(if [ -h %{__cc} ]; then ls -l %{__cc} |awk '{ print $11; }'; else echo %{__cc} |cut -d/ -f4; fi)
-
-# (tpg) optimize it a bit
-%global optflags %{optflags} -O3 -fopenmp
-
-# (tpg) enable PGO build
-%bcond_without pgo
 
 Summary:	Crypto library written in C++
 Name:		botan
-Version:	3.12.0
+Version:	3.13.0
 Release:	1
 Group:		System/Libraries
 License:	BSD
 URL:		https://botan.randombit.net/
 Source0:	https://botan.randombit.net/releases/Botan-%{version}.tar.xz
-BuildRequires:	autoconf
-BuildRequires:	automake
-BuildRequires:	libtool-base
-BuildRequires:	slibtool
 BuildRequires:	make
 BuildRequires:	python
 BuildRequires:	pkgconfig(bzip2)
-BuildRequires:	pkgconfig(gmp)
-BuildRequires:	pkgconfig(openssl)
 BuildRequires:	pkgconfig(zlib)
 BuildRequires:	pkgconfig(sqlite3)
 BuildRequires:	pkgconfig(liblzma)
-BuildRequires:	boost-devel
 # For man page (rst2man)
 BuildRequires:	python-docutils
 
@@ -51,6 +31,7 @@ flavor of the library.
 Summary:	Main library for %{name}
 Group:		System/Libraries
 Provides:	%{name} = %{EVRD}
+Obsoletes:	%{mklibname botan 3 12} < %{EVRD}
 Obsoletes:	%{mklibname botan 1.11 21} < 2.3.0
 Obsoletes:	%{mklibname botan 1.11 30} < 2.3.0
 
@@ -65,6 +46,7 @@ flavor of the library.
 %package -n python-%{name}
 Summary:	Python lib for %{name}
 Group:		Development/Python
+Requires:	%{libname} = %{EVRD}
 
 %description -n python-%{name}
 Python module for %{name}.
@@ -75,7 +57,7 @@ Group:		Development/Other
 Requires:	%{libname} = %{EVRD}
 Provides:	%{name}-devel = %{EVRD}
 Obsoletes:	%{_lib}botan1.10-static-devel
-Obsoletes:	%{mklibname botan 1.11 -d } < 2.3.0
+Obsoletes:	%{mklibname botan 1.11 -d} < 2.3.0
 
 %description -n %{devname}
 This package contains libraries and header files for
@@ -84,83 +66,57 @@ developing applications that use %{name}.
 %prep
 %autosetup -p1 -n Botan-%{version}
 
-# Update permissions for debuginfo package
-find . -name "*.c" -o -name "*.h" -o -name "*.cpp" |xargs chmod 0644
+%conf
+%set_build_flags
+python ./configure.py \
+	--prefix=%{_prefix} \
+	--libdir=%{_lib} \
+	--os=linux \
+	--cpu=%{_arch} \
+	--with-build-dir=_OMV_rpm_build \
+	--with-bzip2 \
+	--with-zlib \
+	--with-sqlite3 \
+	--with-lzma \
+	--disable-static-library \
+	--without-sphinx \
+	--with-rst2man \
+	--distribution-info="OpenMandriva %{EVRD}"
 
 %build
-# we have the necessary prerequisites, so enable optional modules
-%define enable_modules bzip2,zlib,sqlite3,lzma
-
-# fixme: maybe disable unix_procs, very slow.
-%define disable_modules proc_walk,unix_procs
-
-%if %{with pgo}
-CFLAGS="%{optflags} -fprofile-generate" \
-CXXFLAGS="%{optflags} -fprofile-generate" \
-FFLAGS="$CFLAGS" \
-FCFLAGS="$CFLAGS" \
-LDFLAGS="%{build_ldflags} -fprofile-generate" ./configure.py \
-	--prefix=%{_prefix} \
-	--libdir=%{_lib} \
-	--cc=%compiler \
-	--os=linux \
-	--cpu=%{_arch} \
-	--enable-modules=%{enable_modules} \
-	--disable-modules=%{disable_modules}
-
-%make_build
-
-export LD_LIBRARY_PATH="$(pwd)"
-./botan-test ||:
-
-llvm-profdata merge --output=%{name}-llvm.profdata $(find . -name "*.profraw" -type f)
-PROFDATA="$(realpath %{name}-llvm.profdata)"
-rm -f *.profraw
-make clean
-
-CFLAGS="%{optflags} -fprofile-use=$PROFDATA" \
-CXXFLAGS="%{optflags} -fprofile-use=$PROFDATA" \
-FFLAGS="$CFLAGS" \
-FCFLAGS="$CFLAGS" \
-LDFLAGS="%{build_ldflags} -fprofile-use=$PROFDATA" \
-%endif
-./configure.py \
-	--prefix=%{_prefix} \
-	--libdir=%{_lib} \
-	--cc=%compiler \
-	--os=linux \
-	--cpu=%{_arch} \
-	--enable-modules=%{enable_modules} \
-	--disable-modules=%{disable_modules}
-
-%make_build
+%make_build -f _OMV_rpm_build/Makefile
 
 %install
-%make_install DESTDIR="%{buildroot}"
-
-rm -f %{buildroot}%{_libdir}/*.a
+%make_install -f _OMV_rpm_build/Makefile
 # remove doc build leftovers
 rm -rf %{buildroot}%{_docdir}/%{name}-%{version}/handbook/.{buildinfo,doctrees}
 
+%pgo
+export LD_LIBRARY_PATH="$PWD/_OMV_rpm_build${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
+./_OMV_rpm_build/botan-test
 
+%if ! %{cross_compiling}
 %check
 %ifnarch %{ix86}
-export LD_LIBRARY_PATH="$(pwd)"
-./botan-test ||:
+export LD_LIBRARY_PATH="$PWD/_OMV_rpm_build${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
+./_OMV_rpm_build/botan-test
+%endif
 %endif
 
 %files -n %{libname}
-%{_libdir}/libbotan-%{api}.so.%{major}*
+%license license.txt
+%{_libdir}/libbotan-%{api}.so.*
 
 %files -n %{devname}
 %{_bindir}/botan
-%{_includedir}/*
-%{_libdir}/*.so
-%{_libdir}/pkgconfig/*.pc
+%{_includedir}/botan-%{api}
+%{_libdir}/libbotan-%{api}.so
+%{_libdir}/pkgconfig/botan-%{api}.pc
 %{_libdir}/cmake/Botan-%{version}
 %doc %{_docdir}/%{name}-%{version}/handbook
 %doc %{_docdir}/%{name}-%{version}/*.txt
-%doc %{_mandir}/man1/*.1*
+%{_mandir}/man1/botan.1*
 
 %files -n python-%{name}
 %{python_sitearch}/botan3.py
+%{python_sitearch}/__pycache__/botan3.*
