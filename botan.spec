@@ -5,7 +5,7 @@
 Summary:	Crypto library written in C++
 Name:		botan
 Version:	3.13.0
-Release:	1
+Release:	2
 Group:		System/Libraries
 License:	BSD
 URL:		https://botan.randombit.net/
@@ -17,7 +17,7 @@ BuildRequires:	pkgconfig(zlib)
 BuildRequires:	pkgconfig(sqlite3)
 BuildRequires:	pkgconfig(liblzma)
 # For man page (rst2man)
-BuildRequires:	python-docutils
+BuildRequires:	python%{pyver}dist(docutils)
 
 %description
 Botan is a BSD-licensed crypto library written in C++. It provides a
